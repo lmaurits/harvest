@@ -1,6 +1,28 @@
 import random
+import sys
 
 import scipy.stats
+
+def read_from_stdin():
+    simulated_data = DataFrame()
+    header = sys.stdin.readline()
+    header = header.strip().split(",")
+    assert header[0] == "iso"
+    fnames = header[1:]
+    uniqs = []
+    for line in sys.stdin:
+        line = line.strip().split(",")
+        iso, values = line[0], line[1:]
+        simulated_data.data[iso] = {}
+        for field, value in zip(fnames, values):
+            simulated_data.data[iso][field] = value
+            if value != "?" and value not in uniqs:
+                uniqs.append(value)
+    if len(uniqs) == 2:
+        simulated_data.datatype = "binary"
+    else:
+        simulated_data.datatype = "multi"
+    return simulated_data
 
 def read_from_beast_xml(filename):
     simulated_data = DataFrame()

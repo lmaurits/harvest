@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import optparse
 
+import harvest.dataframe
 import harvest.trees
 from harvest.models.mk import MkSimulator
 from harvest.models.dollo import DolloSimulator
@@ -20,21 +21,26 @@ def main():
     parser.add_option('-l', '--languages', action="store", dest="languages", type="int", default=10, help="Number of languges to generate data for (integer)")
     parser.add_option('-m', '--model', action="store", dest="model", type="string", default="mk", help="Model to use for data generation (either \"dollo\" or \"mk\")")
     parser.add_option('-q', '--qmarks', action="store", dest="missing_data_rate", type="float", default=0.0, help="Missing data frequency (probability)")
+    parser.add_option('-r', '--recurse', action="store_true", dest="recurse", default=False, help="Read data from stdin, rather than growing on tree")
     parser.add_option('-t', '--treefile', action="store", dest="treefile", type="string", default=None, help="Filename to save generated tree to (Newick format)")
     options, files = parser.parse_args()
 
-    # Generate tree
-    tree = harvest.trees.generate_yule_tree(options.languages, options.birthrate)
-    if options.treefile:
-        tree.write(file=open(options.treefile, 'w'), schema="newick")
+    if options.recurse:
+        # Recursive power move!
+        data = harvest.dataframe.read_from_stdin()
+    else:
+        # Generate tree
+        tree = harvest.trees.generate_yule_tree(options.languages, options.birthrate)
+        if options.treefile:
+            tree.write(file=open(options.treefile, 'w'), schema="newick")
 
-    # Simulate data
-    if options.model == "dollo":
-        simulator = DolloSimulator(tree,options.features,options.cognate_birthrate,options.gamma,options.borrowing)
-    elif options.model == "mk":
-        simulator = MkSimulator(tree, options.features)
-    simulator.generate_data()
-    data = simulator.data
+        # Simulate data
+        if options.model == "dollo":
+            simulator = DolloSimulator(tree,options.features,options.cognate_birthrate,options.gamma,options.borrowing)
+        elif options.model == "mk":
+            simulator = MkSimulator(tree, options.features)
+        simulator.generate_data()
+        data = simulator.data
 
     # Perform duplication
     data.stochastic_duplication(options.duplication_rate, options.duplication_intensity, options.duplication_fidelity)
