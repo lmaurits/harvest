@@ -33,6 +33,8 @@ def read_from_beast_xml(filename):
             junk, lang, data = line.strip().split()
             iso = lang[7:-1]  
             data = data[7:-3]
+            if "," in data:
+                data = data.split(",")
             for f,d in enumerate(data):
                 row["f%03d" % f] = d
             simulated_data.data[iso] = row

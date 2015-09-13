@@ -20,6 +20,7 @@ def main():
     parser.add_option('-i', '--duplication-intensity', action="store", dest="duplication_intensity", type="float", default=1.01, help="Duplication intensity (positive float)")
     parser.add_option('-l', '--languages', action="store", dest="languages", type="int", default=10, help="Number of languges to generate data for (integer)")
     parser.add_option('-m', '--model', action="store", dest="model", type="string", default="mk", help="Model to use for data generation (either \"dollo\" or \"mk\")")
+    parser.add_option('-n', '--states', action="store", dest="states", type="int", default="2", help="Number of states to use for Mk model")
     parser.add_option('-q', '--qmarks', action="store", dest="missing_data_rate", type="float", default=0.0, help="Missing data frequency (probability)")
     parser.add_option('-r', '--recurse', action="store_true", dest="recurse", default=False, help="Read data from stdin, rather than growing on tree")
     parser.add_option('-t', '--treefile', action="store", dest="treefile", type="string", default=None, help="Filename to save generated tree to (Newick format)")
@@ -38,7 +39,7 @@ def main():
         if options.model == "dollo":
             simulator = DolloSimulator(tree,options.features,options.cognate_birthrate,options.gamma,options.borrowing)
         elif options.model == "mk":
-            simulator = MkSimulator(tree, options.features)
+            simulator = MkSimulator(tree, options.features, options.states)
         simulator.generate_data()
         data = simulator.data
 

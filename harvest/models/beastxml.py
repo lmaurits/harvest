@@ -19,9 +19,10 @@ def indent(elem, level=0):
 
 class BeastXml:
 
-    def __init__(self, tree, n_features, rate="1.0"):
+    def __init__(self, tree, n_features, n_values=5, rate="1.0"):
         self.tree = tree
         self.n_features = n_features
+        self.n_values = n_values
         self.taxa = [l.taxon.label for l in self.tree.leaf_nodes()]
         self.gammacount = len(self.taxa)
         self.rate = str(rate)
@@ -40,9 +41,10 @@ class BeastXml:
         self.beast = ET.Element("beast", attrib=attribs)
 
         # Taxa
-        data = ET.SubElement(self.beast, "data", {"id":"alignment", "dataType":"binary"})
+        datatype = "binary" if self.n_values == 2 else "integer"
+        data = ET.SubElement(self.beast, "data", {"id":"alignment", "dataType":datatype, })
         for taxon in self.taxa:
-            seq = ET.SubElement(data, "sequence", {"taxon":taxon,})
+            seq = ET.SubElement(data, "sequence", {"taxon":taxon,"totalcount":str(self.n_values)})
             seq.text = "?"
 
         # Tree
@@ -67,9 +69,9 @@ class BeastXml:
         shape.text = "4.2"
 
         subst = ET.SubElement(site, "substModel", {"spec":"GeneralSubstitutionModel", "id":"gsm"})
-        freq = ET.SubElement(subst, "frequencies", {"spec":"Frequencies"})
-        ET.SubElement(freq, "data", {"idref":"alignment"})
-        ET.SubElement(subst, "parameter", {"name":"rates", "id":"all.rates", "value":"1.0 1.0"})
+        freq = ET.SubElement(subst, "frequencies", {"spec":"Frequencies", "frequencies":" ".join([("%.16f" % (1.0/self.n_values)) for i in range(0,self.n_values)]) })
+        #ET.SubElement(freq, "data", {"idref":"alignment"})
+        ET.SubElement(subst, "parameter", {"name":"rates", "id":"all.rates", "value":" ".join(["1.0" for i in range(0,int(self.n_values)*(int(self.n_values)-1))])})
 
         # Branch rate
         br = ET.SubElement(self.run, "branchRateModel", {"id":"StrictClock","spec":"beast.evolution.branchratemodel.StrictClockModel"})
