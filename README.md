@@ -35,8 +35,11 @@ Harvest is currently dependent on [DendroPy](https://pythonhosted.org/DendroPy/)
 	  -m MODEL, --model=MODEL
 				Model to use for data generation (either "dollo" or
 				"mk")
+	  -n STATES, --states=STATES
+            	                Number of states to use for Mk model
 	  -q MISSING_DATA_RATE, --qmarks=MISSING_DATA_RATE
 				Missing data frequency (probability)
+	  -r, --recurse         Read data from stdin, rather than growing on tree
 	  -t TREEFILE, --treefile=TREEFILE
 				Filename to save generated tree to (Newick format)
 
@@ -48,7 +51,7 @@ Trees are generated randomly according to the Yule pure-birth process, with birt
 
 Current Harvest supports two data models for growing data on trees, and one of these can be specified with -m.
 
-The first is the Lewis Mk model, which is simply a generalisation of Jukes-Cantor to an arbitrary state space size (instead of being fixed at 4).  All states are equally stable and transitions fro any given state to any other state are all equiprobable.  Currently, the state size is fixed at 2, but this restriction will be removed shortly.  This model is intended for generating "structural" data, such as that found in [WALS](http://wals.info/).
+The first is the Lewis Mk model, which is simply a generalisation of Jukes-Cantor to an arbitrary state space size (instead of being fixed at 4).  All states are equally stable and transitions fro any given state to any other state are all equiprobable.  The size of the state space is specified with the -n option.  This model is intended for generating "structural" data, such as that found in [WALS](http://wals.info/).
 
 The second is a "stochastic Dollo with borrowing" model, intended for generating cognate class data.  New cognate classes are born on the tree at a constant rate (specified with -c, and optionally with Gamma-distributed variation parameterised by -g), and each class is born only once.  A very rough approach to modelling borrowing or horizontal transmission is included: at every branch point of the tree, there is a fixed probability (specified with -B) that the cognate class will be randomly resampled from the set of classes attested anywhere on the tree at any previous point in time.
 
@@ -59,3 +62,9 @@ Harvest permits stochastic duplication of features as a way to model non-indepen
 # Missing data
 
 Missing data can be simulated by providing a proportion with -q.  The full data matrix will be simulated (i.e. with number of datapoints equal to number of languages multiplied by number of features), and then a random selection of data points will be replaced with "?"s, such that the requested proportion of the data is missing.
+
+# Recursive use
+
+By using the -r option, you can use Harvest in a recursive manner.  When run with -r, Harvest will not generate a tree or simulate the evolution of data on that tree under a model.  Instead, it will read language-feature value data from stdin, in the same format that Harvest sends data to stdout when run without -r.  The stochastic duplication and missing data functionality will then be applied to the read in data.  This allows multiple passes of duplication or data removal with distinct parameter settings via a Unix shell pipeline.  E.g. to duplicate most features a small number of times and a few features many times, you could do this:
+
+	harvest -m mk -d 0.90 -i 2 | harvest -r -d 0.10 -i 10
