@@ -42,10 +42,13 @@ Harvest is currently dependent on [DendroPy](https://pythonhosted.org/DendroPy/)
 	  -r, --recurse         Read data from stdin, rather than growing on tree
 	  -t TREEFILE, --treefile=TREEFILE
 				Filename to save generated tree to (Newick format)
+	  -T LOADTREE, --loadtree=LOADTREE
+				Filename to read tree from (Newick format) instead of
+				simulating
 
 # Tree generation
 
-Trees are generated randomly according to the Yule pure-birth process, with birthrate specified by -b.  The generated tree can be saved to a file in Newick format by providing a filename with the -t option, otherwise the tree will be discarded.
+Trees are generated randomly according to the Yule pure-birth process, with birthrate specified by -b.  The generated tree can be saved to a file in Newick format by providing a filename with the -t option, otherwise the tree will be discarded.  If you want to use a specific preexisting tree instead of generating one, you can use the -T option to specify the filename of a file which contains the tree in Newick format.
 
 # Data models
 
