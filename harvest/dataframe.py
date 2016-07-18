@@ -4,6 +4,8 @@ import sys
 import scipy.stats
 
 def read_from_stdin():
+    """Read language data from stdin in .csv format."""
+
     simulated_data = DataFrame()
     header = sys.stdin.readline()
     header = header.strip().split(",")
@@ -48,6 +50,7 @@ class DataFrame:
         self.data = {}
 
     def format_output(self):
+        """Return a string containing a .csv file of the data."""
         iso_codes = self.data.keys()
         iso_codes.sort()
         fnames = self.data[iso_codes[0]].keys()
@@ -59,6 +62,7 @@ class DataFrame:
         return "\n".join(lines)
 
     def duplication(self, countrate, degree, fidelity, probabilistic_degree=False):
+        """Duplicate some features, either deterministically or stochastically."""
         # Choose the features to duplicate
         iso_codes = self.data.keys()
         fnames = self.data[iso_codes[0]].keys()
@@ -102,6 +106,7 @@ class DataFrame:
                     self.data[iso][df+"_dup_%s_%03d" % (uid,n)] = dup
 
     def remove(self, removal_rate):
+        """Randomly remove some datapoints (replacing them wiht '?') so that the dataset has the specified rate of missing data."""
         iso_codes = self.data.keys()
         fnames = self.data[iso_codes[0]].keys()
         n = len(iso_codes) * len(fnames)
