@@ -107,6 +107,9 @@ class DataFrame:
         n = len(iso_codes) * len(fnames)
         to_kill = int(removal_rate*n)
         for i in range(0, to_kill):
-            iso = random.sample(iso_codes,1)[0]
-            fname = random.sample(fnames,1)[0]
-            self.data[iso][fname] = "?"
+            while True:
+                iso = random.sample(iso_codes,1)[0]
+                fname = random.sample(fnames,1)[0]
+                if self.data[iso][name] != "?":
+                    self.data[iso][fname] = "?"
+                    break
