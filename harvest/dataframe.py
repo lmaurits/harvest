@@ -25,12 +25,14 @@ def read_from_stdin():
     return simulated_data
 
 def read_from_beast_xml(filename):
+    """Read an XML file produced by a BEAST simulation."""
+
     simulated_data = DataFrame()
     fp = open(filename,"r")
     for line in fp:
         if "sequence" in line:
             row = {}
-            junk, lang, data = line.strip().split()
+            junk, jank, lang, data = line.strip().split()
             iso = lang[7:-1]  
             data = data[7:-3]
             if "," in data:
