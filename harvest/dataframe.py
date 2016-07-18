@@ -58,29 +58,47 @@ class DataFrame:
             lines.append(iso + "," + ",".join(map(str,[self.data[iso][f] for f in fnames])))
         return "\n".join(lines)
 
-    def stochastic_duplication(self, p=0.1, lambdaa=1, strength=0.7):
+    def duplication(self, countrate, degree, fidelity, probabilistic_degree=False):
+        # Choose the features to duplicate
         iso_codes = self.data.keys()
         fnames = self.data[iso_codes[0]].keys()
-        fnames = [name for name in fnames if "_dup" not in name]
-        duplicated_features = [f for f in fnames if random.random() <= p]
-        duplication_counts = [1+n for n in scipy.stats.poisson.rvs(lambdaa-1,loc=0,size=len(duplicated_features))]
+        if float(countrate).is_integer():
+            ## Deterministic number of duped features
+            count = int(countrate)
+            duplicated_features = random.sample(fnames, count)
+        else:
+            ## Probabilistic number of duped features, defined by rate
+            prob = float(countrate)
+            duplicated_features = [f for f in fnames if random.random() <= prob]
+
+        # Choose the number of times to duplicate each feature
+        if probabilistic_degree:
+            duplication_counts = [1+n for n in scipy.stats.poisson.rvs(degree-1,loc=0,size=len(duplicated_features))]
+        else:
+            duplication_counts = [degree for i in duplicated_features]
+
+        # Perform the duplication
+        ## Random and probably unique ID for this run
+        ## (different for each harvest in a pipeline)
         uid = "".join(random.sample("abcdefghijklmnopqrstuvwxyz",3))
-        for iso in self.data:
-            for df,count in zip(duplicated_features, duplication_counts):
-                if self.datatype == "multi":
-                    empirical= [self.data[i][df] for i in iso_codes]
-                    empirical= [x for x in empirical if x != self.data[iso][df]]
-                for n in range(0,count):
+        for df,count in zip(duplicated_features, duplication_counts):
+            ## Get the empirical distribution if needed
+            if self.datatype == "multi":
+                empirical= [self.data[i][df] for i in iso_codes]
+            for n in range(0,count):
+                for iso in self.data:
                     if self.datatype == "binary":
-                        if self.data[iso][df] == "1":
-                            dup = "1" if random.random() <= strength else "0"
+                        ## Binary duplication
+                        ## If we don't match, just take the opposite vlaue
+                        if random.random() < fidelity:
+                            dup = self.data[iso][df]
                         else:
-                            dup = "0" if random.random() <= strength else "1"
+                            dup = {"0":"1", "1":"0"}[self.data[iso][df]]
                     elif self.datatype == "multi":
-                        dup = self.data[iso][df]
-                        if random.random() > strength and empirical:
-                            while dup == self.data[iso][df]:
-                                dup = random.sample(empirical,1)[0]
+                        if random.random() < fidelity:
+                            dup = self.data[iso][df]
+                        else:
+                            dup = random.sample(empirical,1)[0]
                     self.data[iso][df+"_dup_%s_%03d" % (uid,n)] = dup
 
     def remove(self, removal_rate):
