@@ -20,7 +20,7 @@ def main():
     parser.add_option('-b', '--birthrate', action="store", dest="birthrate", type="float", default=1.0, help="Birthrate for Yule tree growing process (positive float)")
     parser.add_option('-t', '--treefile', action="store", dest="treefile", type="string", default=None, help="Filename to save generated tree to (Newick format)")
     parser.add_option('-T', '--loadtree', action="store", dest="loadtree", type="string", default=None, help="Filename to read tree from (Newick format) instead of simulating")
-    parser.add_option('-B', '--borrowing', action="store", dest="borrowing", type="float", default=0.01, help="Borrowing probability for Dollo model (probability)"),
+    parser.add_option('-B', '--borrowing', action="store", dest="borrowing", type="float", default=0.00, help="Borrowing probability"),
     ## Model specification
     parser.add_option('-m', '--model', action="store", dest="model", type="string", default="mk", help="Model to use for data generation (either \"dollo\" or \"mk\")")
     parser.add_option('-g', '--gamma', action="store", dest="gamma", type="float", default=1.0, help="Gamma rate variation shape parameter (positive float)"),
@@ -60,6 +60,9 @@ def main():
 
     # Perform duplication
     data.duplication(options.dupe_n, options.dupe_degree, options.dupe_fidelity, options.prob_degree)
+
+    # Do borrwing
+    data.borrow(options.borrowing)
 
     # Add missing data (or rather, remove present data?)
     data.remove(options.missing_data_rate)

@@ -105,6 +105,23 @@ class DataFrame:
                             dup = random.sample(empirical,1)[0]
                     self.data[iso][df+"_dup_%s_%03d" % (uid,n)] = dup
 
+    def borrow(self, borrowing_rate):
+        """Randomly borrow feature values at a certain rate."""
+        if borrowing_rate == 0.0:
+            return
+        iso_codes = self.data.keys()
+        fnames = self.data[iso_codes[0]].keys()
+        for f in fnames:
+            borrowable_values = []
+            borrowers = []
+            for iso in iso_codes:
+                if random.random() <= borrowing_rate:
+                    borrowers.append(iso)
+                else:
+                    borrowable_values.append(self.data[iso][f])
+            for iso in borrowers:
+                self.data[iso][f] = random.sample(borrowable_values,1)[0]
+
     def remove(self, removal_rate):
         """Randomly remove some datapoints (replacing them wiht '?') so that the dataset has the specified rate of missing data."""
         iso_codes = self.data.keys()
