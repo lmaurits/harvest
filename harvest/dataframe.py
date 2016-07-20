@@ -132,6 +132,6 @@ class DataFrame:
             while True:
                 iso = random.sample(iso_codes,1)[0]
                 fname = random.sample(fnames,1)[0]
-                if self.data[iso][name] != "?":
+                if self.data[iso][fname] != "?":
                     self.data[iso][fname] = "?"
                     break
