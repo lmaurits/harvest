@@ -52,7 +52,7 @@ def main():
 
         # Simulate data
         if options.model == "dollo":
-            simulator = DolloSimulator(tree,options.features,options.cognate_birthrate,options.gamma,options.borrowing)
+            simulator = DolloSimulator(tree,options.features,options.cognate_birthrate)
         elif options.model == "mk":
             simulator = MkSimulator(tree, options.features, options.states)
         simulator.generate_data()
